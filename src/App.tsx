@@ -1,12 +1,34 @@
 import './index.css'
-import QuizForm from './QuizForm'
+import { useState } from 'react'
+import Auth from './components/Auth'
+import AdminPanel from './components/AdminPanel'
+import StudentPanel from './components/StudentPanel'
+
+type UserType = 'admin' | 'student' | null;
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <QuizForm />
-    </div>
-  )
+  const [userType, setUserType] = useState<UserType>(null);
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (type: UserType, user: string) => {
+    setUserType(type);
+    setUsername(user);
+  };
+
+  const handleLogout = () => {
+    setUserType(null);
+    setUsername('');
+  };
+
+  if (!userType) {
+    return <Auth onLogin={handleLogin} />;
+  }
+
+  if (userType === 'admin') {
+    return <AdminPanel onLogout={handleLogout} />;
+  }
+
+  return <StudentPanel username={username} onLogout={handleLogout} />;
 }
 
 export default App

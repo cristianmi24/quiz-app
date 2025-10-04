@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Clock, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
+import { Clock, ChevronRight, CheckCircle } from 'lucide-react';
 
 type Question = {
   texto: string;
@@ -17,7 +17,11 @@ type AnswersMap = Record<number, 'a' | 'b' | 'c' | 'd'>;
 
 type QuestionTimes = Record<number, { timeSpent?: number; answered?: boolean }>;
 
-const QuizForm: React.FC = () => {
+interface QuizFormProps {
+  onComplete?: () => void;
+}
+
+const QuizForm: React.FC<QuizFormProps> = ({ onComplete }) => {
   const preguntas: Question[] = [
     {
       texto:
@@ -299,9 +303,6 @@ const QuizForm: React.FC = () => {
     }
   };
 
-  const goToPrevQuestion = () => {
-    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
-  };
 
   const submitQuiz = async () => {
     if (isSubmitting) return;
@@ -336,10 +337,18 @@ const QuizForm: React.FC = () => {
       completedAt: new Date().toISOString(),
       totalCorrect: correctAnswers,
       correctness,
+      questions: preguntas.map(q => ({
+        skill_id: q.skill_id,
+        difficulty: q.difficulty
+      }))
     };
     console.log('Resultados de la evaluación:', results);
     // Mostrar pantalla de resultados inmediatamente
     setIsCompleted(true);
+    // Llamar callback si existe
+    if (onComplete) {
+      onComplete();
+    }
     try {
       const resp = await fetch('/api/submit', {
         method: 'POST',
@@ -348,7 +357,7 @@ const QuizForm: React.FC = () => {
       })
       let data: any = null
       try {
-        data = await resp.json()
+        data = await resp.clone().json()
       } catch (e) {
         const text = await resp.text()
         console.error('Respuesta no-JSON del servidor:', text)
@@ -612,14 +621,7 @@ const QuizForm: React.FC = () => {
       </div>
 
       <div className="flex justify-between items-center">
-        <button
-          onClick={goToPrevQuestion}
-          disabled={currentQuestion === 0}
-          className="flex items-center px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Anterior
-        </button>
+        <div className="w-24"></div>
 
         <div className="flex space-x-2">
           {preguntas.map((_, index) => (

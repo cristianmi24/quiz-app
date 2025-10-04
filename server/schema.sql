@@ -29,4 +29,19 @@ CREATE TABLE IF NOT EXISTS question_times (
   FOREIGN KEY (participant_id) REFERENCES participants(id)
 );
 
+CREATE TABLE IF NOT EXISTS dataset_records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  item_id INT NOT NULL,
+  score DECIMAL(4,2) NOT NULL,
+  current TINYINT(1) NOT NULL,
+  next TINYINT(1) NOT NULL,
+  timestamp INT NOT NULL,
+  skill_id INT NOT NULL,
+  difficulty INT NOT NULL,
+  response_time DECIMAL(5,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES participants(id)
+);
+
 
